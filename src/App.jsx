@@ -1,11 +1,5 @@
-import Button from "./CardList";
-
 function App() {
-  return (
-    <div>
-      <Button></Button>
-    </div>
-  );
+  return <div></div>;
 }
 
 export default App;
