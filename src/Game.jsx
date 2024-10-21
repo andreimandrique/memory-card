@@ -3,12 +3,10 @@ import Card from "./Card";
 
 function shuffle(array) {
   const copy = [...array];
-
-  for (let i = array.length - 1; i > 0; i--) {
+  for (let i = copy.length - 1; i > 0; i--) {
     const random = Math.floor(Math.random() * (i + 1));
-    [array[i], array[random]] = [array[random], array[i]];
+    [copy[i], copy[random]] = [copy[random], copy[i]];
   }
-
   return copy;
 }
 
@@ -21,7 +19,6 @@ function Game() {
   const [isError, setIsError] = useState(false);
 
   const arrayAPI = "[1,2,3,4,5,6,7,8,9,10,11,12]";
-
   const API = `https://rickandmortyapi.com/api/character/${arrayAPI}`;
 
   async function getData() {
@@ -30,11 +27,11 @@ function Game() {
       if (!response.ok) {
         throw new Error(`Error fetching data: ${response.status}`);
       }
-      const data = await response.json();
-      setData(data);
+      const fetchedData = await response.json();
+      setData(shuffle(fetchedData));
       setIsLoading(false);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       setIsError(true);
       setIsLoading(false);
     }
@@ -45,46 +42,39 @@ function Game() {
   }, []);
 
   function handleClick(e) {
-    //shuffle the image
-    setData((prevData) => shuffle(prevData));
-    //get the image name
+    // Shuffle the cards
+    setData((prevData) => shuffle([...prevData]));
+
+    // Get the image name
     const characterName = e.currentTarget.getAttribute("name");
-    //add the character to a array
-    setCharacters([...characters, characterName]);
-    //return true if the array have the character name
-    const match = (element) => element == characterName;
+
+    // Add the character to the array
+    setCharacters((prevCharacters) => [...prevCharacters, characterName]);
+
+    // Check if the character has been clicked before
+    const match = (element) => element === characterName;
 
     if (characters.some(match)) {
-      // console.log("lose");
+      // Lose condition
       setCharacters([]);
       setScore(0);
 
       if (score > bestScore) {
         setBestScore(score);
       }
-    } else if (score == data.length - 1) {
-      // console.log("win");
+    } else if (score === data.length - 1) {
+      // Win condition
       setCharacters([]);
       setBestScore(score + 1);
       setScore(0);
     } else {
-      setScore(score + 1);
+      // Continue playing
+      setScore((prevScore) => prevScore + 1);
     }
   }
 
-  const cardList = data.map((item) => (
-    <div className="card" name={item.name} key={item.id} onClick={handleClick}>
-      <Card title={item.name} imgUrl={item.image}></Card>
-    </div>
-  ));
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (isError) {
-    return <div>Error</div>;
-  }
+  if (isLoading) return <div>Loading...</div>;
+  if (isError) return <div>Error loading data. Please try again later.</div>;
 
   return (
     <div>
@@ -92,7 +82,18 @@ function Game() {
         <div>Score: {score}</div>
         <div>Best Score: {bestScore}</div>
       </div>
-      <div className="card-container">{cardList}</div>
+      <div className="card-container">
+        {data.map((item) => (
+          <div
+            className="card"
+            name={item.name}
+            key={item.id}
+            onClick={handleClick}
+          >
+            <Card title={item.name} imgUrl={item.image} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
