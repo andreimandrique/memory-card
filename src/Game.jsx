@@ -18,7 +18,7 @@ function Game() {
   const [score, setScore] = useState(0);
   const [bestScore, setBestScore] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null); // Add error state
+  const [isError, setIsError] = useState(false);
 
   const arrayAPI = "[1,2,3,4,5,6,7,8,9,10,11,12]";
 
@@ -32,9 +32,10 @@ function Game() {
       }
       const data = await response.json();
       setData(data);
+      setIsLoading(false);
     } catch (error) {
-      setError(error);
-    } finally {
+      console.log(error);
+      setIsError(true);
       setIsLoading(false);
     }
   }
@@ -77,22 +78,22 @@ function Game() {
     </div>
   ));
 
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (isError) {
+    return <div>Error</div>;
+  }
+
   return (
-    <>
-      {isLoading ? (
-        <div>Loading...</div>
-      ) : error ? (
-        <div>Error: {error.message}</div>
-      ) : (
-        <>
-          <div className="score-container">
-            <div>Score: {score}</div>
-            <div>Best Score: {bestScore}</div>
-          </div>
-          <div className="card-container">{cardList}</div>
-        </>
-      )}
-    </>
+    <div>
+      <div className="score-container">
+        <div>Score: {score}</div>
+        <div>Best Score: {bestScore}</div>
+      </div>
+      <div className="card-container">{cardList}</div>
+    </div>
   );
 }
 
