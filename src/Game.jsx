@@ -17,6 +17,8 @@ function Game() {
   const [characters, setCharacters] = useState([]);
   const [score, setScore] = useState(0);
   const [bestScore, setBestScore] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null); // Add error state
 
   const arrayAPI = "[1,2,3,4,5,6,7,8,9,10,11,12]";
 
@@ -25,10 +27,15 @@ function Game() {
   async function getData() {
     try {
       const response = await fetch(API);
+      if (!response.ok) {
+        throw new Error(`Error fetching data: ${response.status}`);
+      }
       const data = await response.json();
       setData(data);
     } catch (error) {
-      console.log(error);
+      setError(error);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -72,11 +79,19 @@ function Game() {
 
   return (
     <>
-      <div className="score-container">
-        <div>Score: {score}</div>
-        <div>Best Score: {bestScore}</div>
-      </div>
-      <div className="card-container">{cardList}</div>
+      {isLoading ? (
+        <div>Loading...</div>
+      ) : error ? (
+        <div>Error: {error.message}</div>
+      ) : (
+        <>
+          <div className="score-container">
+            <div>Score: {score}</div>
+            <div>Best Score: {bestScore}</div>
+          </div>
+          <div className="card-container">{cardList}</div>
+        </>
+      )}
     </>
   );
 }
