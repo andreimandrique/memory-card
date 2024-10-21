@@ -14,8 +14,13 @@ function shuffle(array) {
 
 function Game() {
   const [data, setData] = useState([]);
+  const [characters, setCharacters] = useState([]);
+  const [score, setScore] = useState(0);
+  const [bestScore, setBestScore] = useState(0);
 
-  const API = "https://rickandmortyapi.com/api/character/[1,2,3]";
+  const arrayAPI = "[1,2,3,4,5,6,7,8,9,10,11,12]";
+
+  const API = `https://rickandmortyapi.com/api/character/${arrayAPI}`;
 
   async function getData() {
     try {
@@ -31,20 +36,47 @@ function Game() {
     getData();
   }, []);
 
-  function handleClick() {
+  function handleClick(e) {
+    //shuffle the image
     setData((prevData) => shuffle(prevData));
+    //get the image name
+    const characterName = e.currentTarget.getAttribute("name");
+    //add the character to a array
+    setCharacters([...characters, characterName]);
+    //return true if the array have the character name
+    const match = (element) => element == characterName;
+
+    if (characters.some(match)) {
+      // console.log("lose");
+      setCharacters([]);
+      setScore(0);
+
+      if (score > bestScore) {
+        setBestScore(score);
+      }
+    } else if (score == data.length - 1) {
+      // console.log("win");
+      setCharacters([]);
+      setBestScore(score + 1);
+      setScore(0);
+    } else {
+      setScore(score + 1);
+    }
   }
 
   const cardList = data.map((item) => (
-    <div key={item.id}>
+    <div className="card" name={item.name} key={item.id} onClick={handleClick}>
       <Card title={item.name} imgUrl={item.image}></Card>
     </div>
   ));
 
   return (
     <>
-      <button onClick={handleClick}>Random</button>
-      <div>{cardList}</div>
+      <div className="score-container">
+        <div>Score: {score}</div>
+        <div>Best Score: {bestScore}</div>
+      </div>
+      <div className="card-container">{cardList}</div>
     </>
   );
 }

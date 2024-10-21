@@ -1,11 +1,7 @@
 import Game from "./Game";
 
 function App() {
-  return (
-    <div>
-      <Game></Game>
-    </div>
-  );
+  return <Game></Game>;
 }
 
 export default App;
