@@ -22,6 +22,7 @@
   align-items: center;
   flex-direction: column;
   cursor: pointer;
+  gap: 6px;
   width: 200px;
   height: 240px;
 }
